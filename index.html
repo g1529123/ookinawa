@@ -1,951 +1,121 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OKINAWA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記帳與清單 App</title>
     <style>
-        :root {
-            --bg-main: #FFFCF6;
-            --bg-card: #FFFFFF;
-            --border-color: #3E3A39;
-            --text-main: #3E3A39;
-            --text-muted: #726A68;
-            --coral-pink: #F2A497;
-            --yamabuki-yellow: #F6D27A;
-            --mizu-blue: #A8D3E6;
-            --wakatake-green: #B9DAA5;
-            --shadow: 4px 4px 0px #3E3A39;
-        }
-
-        [data-theme="dark"] {
-            --bg-main: #292923;
-            --bg-card: #494336;
-            --border-color: #8D806D;
-            --text-main: #F7F1E7;
-            --text-muted: #C0B7A8;
-            --coral-pink: #D6A094;
-            --yamabuki-yellow: #E1BE78;
-            --mizu-blue: #A5BCB4;
-            --wakatake-green: #B1BE91;
-            --shadow: 4px 4px 0px #8D806D;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding-top: 75px;
-            padding-bottom: 30px;
-            transition: background-color 0.3s, color 0.3s;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 65px;
-            background-color: var(--bg-card);
-            border-bottom: 3px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            z-index: 99999;
-            pointer-events: auto;
-        }
-
-        .nav-scroll {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            flex-grow: 1;
-            padding: 5px 0;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        .nav-scroll::-webkit-scrollbar { display: none; }
-
-        .nav-btn {
-            background: none;
-            border: 2px solid transparent;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--text-main);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-            touch-action: manipulation;
-        }
-
-        .nav-btn.active {
-            background-color: var(--yamabuki-yellow);
-            border-color: var(--border-color);
-            box-shadow: 2px 2px 0px var(--border-color);
-            transform: translate(-1px, -1px);
-        }
-
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--border-color);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            background-color: var(--bg-main);
-            flex-shrink: 0;
-            margin-left: 10px;
-            font-size: 16px;
-            touch-action: manipulation;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-
-        .page-section { display: none; }
-        .page-section.active { display: block; }
-
-        .card {
-            background-color: var(--bg-card);
-            border: 3px solid var(--border-color);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-
-        h1 { font-size: 24px; color: var(--coral-pink); margin-bottom: 10px; }
-        h2 { font-size: 20px; border-bottom: 2px dashed var(--border-color); padding-bottom: 5px; margin-top: 15px; margin-bottom: 10px; }
-        h3 { font-size: 16px; margin-bottom: 5px; }
-        p { font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
-
-        .tag {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            border: 2px solid var(--border-color);
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .tag-pink { background-color: var(--coral-pink); }
-        .tag-yellow { background-color: var(--yamabuki-yellow); }
-        .tag-blue { background-color: var(--mizu-blue); }
-        .tag-green { background-color: var(--wakatake-green); }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 2px 2px 0 var(--border-color);
-            margin-top: 6px;
-            margin-right: 6px;
-            touch-action: manipulation;
-        }
-
-        .btn-transit {
-            background-color: var(--mizu-blue);
-        }
-
-        .day-nav {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        .day-nav::-webkit-scrollbar { display: none; }
-        .day-btn {
-            background-color: var(--bg-card);
-            border: 2px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
-            color: var(--text-main);
-            touch-action: manipulation;
-        }
-        .day-btn.active {
-            background-color: var(--coral-pink);
-            box-shadow: 2px 2px 0 var(--border-color);
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-left: 20px;
-            border-left: 2px dashed var(--border-color);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -7px;
-            top: 4px;
-            width: 10px;
-            height: 10px;
-            background-color: var(--yamabuki-yellow);
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-        }
-        .time-badge {
-            font-weight: bold;
-            font-size: 16px;
-            color: var(--coral-pink);
-            margin-bottom: 2px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.6);
-            z-index: 999999;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background-color: var(--bg-card);
-            border: 3px solid var(--border-color);
-            border-radius: 16px;
-            max-width: 450px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 20px;
-            position: relative;
-        }
-        .close-modal {
-            position: absolute;
-            top: 10px; right: 15px;
-            font-size: 22px; cursor: pointer; font-weight: bold;
-        }
-
-        .todo-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 8px;
-            padding: 4px 0;
-            border-bottom: 1px dashed var(--border-color);
-            font-size: 14px;
-        }
-        .todo-item input[type="checkbox"] {
-            width: 18px; height: 18px; margin-top: 2px;
-            accent-color: var(--coral-pink);
-        }
-        .todo-text.checked { text-decoration: line-through; color: var(--text-muted); }
-
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 13px; }
-        .form-control {
-            width: 100%; padding: 8px;
-            border: 2px solid var(--border-color); border-radius: 8px;
-            background-color: var(--bg-main); color: var(--text-main); font-size: 14px;
-        }
-
-        .sub-nav {
-            display: flex; gap: 5px; margin-bottom: 15px;
-            background: var(--bg-main); padding: 4px;
-            border-radius: 10px; border: 2px solid var(--border-color);
-        }
-        .sub-btn {
-            flex: 1; padding: 6px; border: none; background: none;
-            cursor: pointer; font-weight: bold; font-size: 12px; border-radius: 6px; color: var(--text-main);
-            touch-action: manipulation;
-        }
-        .sub-btn.active { background-color: var(--mizu-blue); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f5f7; padding: 20px; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h3 { margin-top: 0; color: #1d1d1f; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        input, select { padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 16px; -webkit-appearance: none; }
+        button { background-color: #0071e3; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:active { background-color: #005bb5; }
+        .total { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #0071e3; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { background: #f5f5f7; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        .delete-btn { background: #ff3b30; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-scroll">
-            <button class="nav-btn active" onclick="switchPage('home')">首頁</button>
-            <button class="nav-btn" onclick="switchPage('flight')">航班</button>
-            <button class="nav-btn" onclick="switchPage('itinerary')">行程</button>
-            <button class="nav-btn" onclick="switchPage('pocket')">口袋庫</button>
-            <button class="nav-btn" onclick="switchPage('budget')">記帳</button>
-            <button class="nav-btn" onclick="switchPage('hotel')">住宿</button>
-            <button class="nav-btn" onclick="switchPage('todo')">清單</button>
+    <!-- 記帳輸入區塊 -->
+    <div class="card">
+        <h3>💰 新增消費紀錄</h3>
+        <div class="input-group">
+            <input type="text" id="itemName" placeholder="項目名稱 (例如：午餐、車資)">
+            <input type="number" id="itemAmount" placeholder="花費金額 (數字)" inputmode="numeric">
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-    </nav>
-
-    <div class="container">
-        <!-- 首頁 -->
-        <div id="page-home" class="page-section active">
-            <div class="card" style="text-align: center;">
-                <h1>沖繩趣</h1>
-                <p style="font-weight: bold; color: var(--coral-pink);">🌺 媽媽 + 10歲女兒的極致放鬆之旅</p>
-                <div style="margin: 15px 0; background: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px dashed var(--border-color); font-size: 14px;">
-                    <p>📍 <b>目的地：</b>日本沖繩那霸</p>
-                    <p>📅 <b>日期：</b>12/06 - 12/11 (6天5夜)</p>
-                </div>
-                <p id="countdown" style="font-weight: bold; font-size: 14px; color: var(--wakatake-green);"></p>
-            </div>
-            <div class="card">
-                <h3>🧳 出發前鐵三角防護</h3>
-                <p>1. <b>交通：</b>iPhone 內建錢包已綁定 Suica/ICOCA 並儲值好日圓。</p>
-                <p>2. <b>保險：</b>已刷卡啟動不便險，落地後投保 VJW 日本在地醫療險。</p>
-                <p>3. <b>票券：</b>Klook/KKday 買好 Okinawa FunPASS 美麗海5合1通票。</p>
-            </div>
-        </div>
-
-        <!-- 航班 -->
-        <div id="page-flight" class="page-section">
-            <div class="card">
-                <h2>✈️ 去程航班：星宇航空 JX302</h2>
-                <p>📅 <b>日期：</b>12/06 (日)</p>
-                <p>🛫 <b>出發：</b>桃園國際機場 (TPE) -> 那霸機場 (OKA) 15:45抵達</p>
-                <a href="https://www.threads.com/share/EB6dYTBR-/" class="btn" target="_blank">座位挑選攻略 🔗</a>
-            </div>
-            <div class="card">
-                <h2>✈️ 回程航班：星宇航空 JX313</h2>
-                <p>📅 <b>日期：</b>12/11 (五)</p>
-                <p>🛫 <b>起飛：</b>那霸機場 (OKA) 20:10 -> 台中機場 (RMQ) 20:50</p>
-                <p>⚠️ <b>注意：</b>預計 17:40 開放報到，動線已規劃提前 4 小時進機場集章。</p>
-            </div>
-        </div>
-
-        <!-- 行程 -->
-        <div id="page-itinerary" class="page-section">
-            <div class="day-nav">
-                <button class="day-btn active" onclick="switchDay(1)">Day 1</button>
-                <button class="day-btn" onclick="switchDay(2)">Day 2</button>
-                <button class="day-btn" onclick="switchDay(3)">Day 3</button>
-                <button class="day-btn" onclick="switchDay(4)">Day 4</button>
-                <button class="day-btn" onclick="switchDay(5)">Day 5</button>
-                <button class="day-btn" onclick="switchDay(6)">Day 6</button>
-            </div>
-
-            <!-- Day 1 -->
-            <div id="day-content-1" class="day-content">
-                <div class="card">
-                    <h2>Day 1 (日) · 那霸新都心夜</h2>
-                    <span class="tag tag-pink">落地安頓</span><span class="tag tag-yellow">免稅電器</span><span class="tag tag-blue">燒肉吃到飽</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">15:45</div>
-                        <h3>抵達那霸機場</h3>
-                        <p>辦理入境手續，提取行李後前往單軌電車站。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day1_1')">🚌 交通搭乘：機場 ➔ 旭橋/縣廳前站</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">17:00</div>
-                        <h3>大和ROYNET酒店 Check-in</h3>
-                        <p>放行李，稍作休息後出發新都心。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day1_2')">🚌 交通搭乘：縣廳前 ➔ 新都心 (YAMADA)</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">17:30</div>
-                        <h3>山田電機 那霸本店 (YAMADA)</h3>
-                        <p>2樓有超大玩具區，麵包超人玩具與電器大採購！</p>
-                        <button class="btn" onclick="openDetail('yamada')">💡 免稅折價券與順序秘技</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">18:40</div>
-                        <h3>晚餐：燒肉五苑 古島站前店</h3>
-                        <p>大口吃肉慰勞雙腿，吃完輕鬆搭單軌回飯店。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day1_3')">🚌 交通搭乘：古島站 ➔ 旭橋站 (回飯店)</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day 2 -->
-            <div id="day-content-2" class="day-content" style="display:none;">
-                <div class="card">
-                    <h2>Day 2 (一) · 臨海商城血拼</h2>
-                    <span class="tag tag-blue">公車直達</span><span class="tag tag-pink">大耳狗</span><span class="tag tag-green">三麗鷗免稅</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">07:30</div>
-                        <h3>早餐：甘味處 萬丸 那霸泉崎店</h3>
-                        <p>飯店走路3分鐘。點飲料送吐司的超棒日式早餐。</p>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">09:30</div>
-                        <h3>出發 PARCO CITY</h3>
-                        <p>「縣廳北口」站搭乘 334/385/309/32 號公車直達。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day2_1')">🚌 交通搭乘：縣廳北口 ➔ PARCO CITY 直達公車</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">10:00</div>
-                        <h3>PARCO CITY 全天大戰</h3>
-                        <p>必逛3樓玩具反斗城、Sanrio Gift Gate 大耳狗專櫃（滿5000免稅）。</p>
-                        <button class="btn" onclick="openDetail('parco')">🛍️ 樓層與公車上車點指南</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day 3 -->
-            <div id="day-content-3" class="day-content" style="display:none;">
-                <div class="card">
-                    <h2>Day 3 (二) · 遠征美麗海</h2>
-                    <span class="tag tag-green">特急巴士</span><span class="tag tag-yellow">黑潮之海</span><span class="tag tag-pink">海豚秀</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">08:15</div>
-                        <h3>那霸巴士總站候車</h3>
-                        <p>前往飯店對面總站，搭乘事先預約好的 OAS 機場接駁巴士特急班次。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day3_1')">🚌 交通搭乘：那霸總站 ➔ 美麗海水族館 特急巴士</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">10:30</div>
-                        <h3>抵達美麗海水族館</h3>
-                        <p>使用 FunPASS 掃碼進場。看黑潮之海、看免費海豚秀、去翡翠海灘踩水。</p>
-                        <button class="btn" onclick="openDetail('churaumi')">🐬 節目與動線特指引</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">19:00</div>
-                        <h3>晚餐：久茂地名店 阿古豬火鍋 / 宮古麵田舍</h3>
-                        <p>頂級沖繩阿古豬涮涮鍋或超嫩軟骨排骨麵二選一。</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day 4 -->
-            <div id="day-content-4" class="day-content" style="display:none;">
-                <div class="card">
-                    <h2>Day 4 (三) · 文化、海風與夕陽</h2>
-                    <span class="tag tag-yellow">寄明信片</span><span class="tag tag-pink">美國村落日</span><span class="tag tag-blue">唐吉訶德</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">09:00</div>
-                        <h3>東町中央郵局 & 沖宮</h3>
-                        <p>搭單軌到壺川站，寄特色造型明信片。隨後去奧武山公園沖宮抽十二生肖不倒翁籤。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day4_1')">🚌 交通搭乘：旭橋 ➔ 壺川/奧武山公園 (單軌)</button>
-                        <button class="btn" onclick="openDetail('post_shrine')">📮 造型明信片與生肖籤攻略</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">11:30</div>
-                        <h3>搭乘 120 號公車前往美國村</h3>
-                        <p>旭橋巴士總站3號月台搭乘。車程約1小時，請多準備千円日圓紙鈔。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day4_2')">🚌 交通搭乘：那霸 ➔ 美國村 120號公車詳細指南</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">13:00</div>
-                        <h3>大逛美國村 & 海景美食</h3>
-                        <p>吃歐姆蛋塔可飯，傍晚在 atabii's 看 17:15 的絕美落日，用 FunPASS 換免費 Blue Seal 冰淇淋！</p>
-                        <button class="btn" onclick="openDetail('american_village')">🍔 美國村雙強海景餐廳推薦</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">18:30</div>
-                        <h3>唐吉訶德壺川店大掃貨</h3>
-                        <p>搭120號公車直達壺川站下車即達！掃貨完搭單軌1站回飯店，超輕鬆。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day4_3')">🚌 交通搭乘：美國村 ➔ 唐吉訶德壺川店 (公車+單軌)</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day 5 -->
-            <div id="day-content-5" class="day-content" style="display:none;">
-                <div class="card">
-                    <h2>Day 5 (四) · 南部數位水族館與精品 Outlet</h2>
-                    <span class="tag tag-blue">TK02快車</span><span class="tag tag-green">互動餵食</span><span class="tag tag-pink">生蠔宴</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">09:20</div>
-                        <h3>國際通入口搭乘 TK02 快車</h3>
-                        <p>百貨正門口搭乘東京巴士 TK02，可用台灣信用卡直接感應付款。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day5_1')">🚌 交通搭乘：縣廳前 ➔ DMM水族館 TK02快車指南</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">10:00</div>
-                        <h3>DMM Kariyushi 水族館 & iias 商城</h3>
-                        <p>使用 FunPASS 進場，看超夢幻透明玻璃步道。現場用 Klook 買票更省！</p>
-                        <button class="btn" onclick="openDetail('dmm')">🐠 DMM 換票與限量餵食體驗</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">14:00</div>
-                        <h3>ASHIBINAA Outlet 血拼</h3>
-                        <p>大逛名牌、GAP 與精品童裝鞋款。累了直接用手機 App 叫計程車一車載回飯店！</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day5_2')">🚌 交通搭乘：iias ➔ Outlet ➔ 飯店 (叫車與公車)</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">18:30</div>
-                        <h3>晚餐：牡蠣と島の飯酒場 あに家</h3>
-                        <p>已線上預約！國際通小巷內的生蠔名店，火山高壓蒸汽蒸生蠔超鮮甜，QR code 圖片點餐極方便。</p>
-                        <button class="btn" onclick="openDetail('aniya')">🦪 あに家必點饕客清單</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day 6 -->
-            <div id="day-content-6" class="day-content" style="display:none;">
-                <div class="card">
-                    <h2>Day 6 (五) · 終極大進擊與返台</h2>
-                    <span class="tag tag-pink">一日券</span><span class="tag tag-yellow">海灘踏浪</span><span class="tag tag-blue">機場爆逛</span>
-                    <div class="timeline-item">
-                        <div class="time-badge">09:30</div>
-                        <h3>飯店 Check-out 寄放行李</h3>
-                        <p>購買「單軌電車 24小時一日券」，輕裝出發。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day6_1')">🚌 交通搭乘：單軌電車 24小時一日券划算用法</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">09:45</div>
-                        <h3>第一站：西來院達摩寺</h3>
-                        <p>搭單軌至首里站轉計程車3分鐘。拍超萌紅達摩不倒翁，用 FunPASS 兌換限量口金包。</p>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">11:30</div>
-                        <h3>第二站：淳久堂書局 那霸店</h3>
-                        <p>單軌美榮橋站出站即達。留足1小時讓女兒挑選精緻文具貼紙、日文畫冊。</p>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">13:15</div>
-                        <h3>第三站：波上宮 & 波之上海灘</h3>
-                        <p>搭計程車直奔斷崖上的神社，買小學生書包御守。隨後走下海灘踏浪，拍下壓軸網美照。</p>
-                        <button class="btn btn-transit" onclick="openDetail('transit_day6_2')">🚌 交通搭乘：市區短程計程車叫車指引</button>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="time-badge">16:15</div>
-                        <h3>第四站：回飯店拿行李 ➔ 提前4小時衝機場</h3>
-                        <p>回飯店拿行李搭單軌直奔機場。集章換鯨鯊存錢筒、雷雕真皮皮件，把伴手禮一次買齊！</p>
-                        <button class="btn" onclick="openDetail('airport')">✈️ 機場神級集章與雷雕動線</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 口袋庫 -->
-        <div id="page-pocket" class="page-section">
-            <div class="sub-nav">
-                <button class="sub-btn active" onclick="switchSubSection('food')">必吃餐廳</button>
-                <button class="sub-btn" onclick="switchSubSection('shopping')">購物聖地</button>
-                <button class="sub-btn" onclick="switchSubSection('snacks')">超商吃什麼</button>
-            </div>
-            
-            <div id="sub-food">
-                <div class="card">
-                    <h3>1. 居酒屋 LUCKY MAXIMUM</h3>
-                    <p>📍 <b>地址：</b>沖繩縣那霸市牧志 2-7-24</p>
-                    <p>🕒 <b>營業時間：</b>17:00 - 00:00 (週三公休)</p>
-                    <p>⭐ <b>推薦餐點：</b>特製串燒拼盤、沖繩炒苦瓜、泡盛特調</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_lucky')">🚌 交通與詳細資訊</button>
-                </div>
-                <div class="card">
-                    <h3>2. 沖繩麵 EIBUN Palette 新分店</h3>
-                    <p>📍 <b>地址：</b>沖繩縣那霸市久茂地 1-1-1 (RYUBO 琉房百貨 1F)</p>
-                    <p>🕒 <b>營業時間：</b>11:00 - 21:00</p>
-                    <p>⭐ <b>推薦餐點：</b>招牌 EIBUN 沖繩麵、特製排骨沖繩麵、清燉肉片拌麵</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_eibun')">🚌 交通與詳細資訊</button>
-                </div>
-                <div class="card">
-                    <h3>3. くもざき (Kumozaki)</h3>
-                    <p>📍 <b>地址：</b>沖繩縣那霸市泉崎 1-10-3 (距飯店約 150m)</p>
-                    <p>🕒 <b>營業時間：</b>17:00 - 23:30</p>
-                    <p>⭐ <b>推薦餐點：</b>名物阿古豬蒸餃/燒賣、縣產地魚胡麻蔥花滿滿刺身、炭烤鰻魚土鍋飯</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_kumozaki')">🚌 交通與詳細資訊</button>
-                </div>
-            </div>
-
-            <div id="sub-shopping" style="display:none;">
-                <div class="card">
-                    <h3>1. 漫畫倉庫 那霸店</h3>
-                    <span class="tag tag-pink">📅 建議排在 Day 6 下午 (去機場前)</span>
-                    <p>赤嶺站走路5分鐘內。挖寶動漫周邊、二手盲盒、復古玩具的特大號天堂！</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_manga')">🚌 交通搭乘：單軌赤嶺站指引</button>
-                </div>
-                <div class="card">
-                    <h3>2. 新都心 那霸 Main Place</h3>
-                    <span class="tag tag-yellow">📅 建議排在 Day 1 傍晚 (逛完山田電機後) 或 Day 6</span>
-                    <p>2 樓玩具區有超豐富的麵包超人日常生活用品（水杯、OK繃、防蚊液、飯友香鬆粉），回台送同學最適合！</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_mainplace')">🚌 交通搭乘：新都心歌町站連通指引</button>
-                </div>
-                <div class="card">
-                    <h3>3. Workman 職人機能服</h3>
-                    <span class="tag tag-blue">📅 建議排在 Day 2 (配合 PARCO CITY) 或 Day 5</span>
-                    <p>平價高機能防風防水外套大本營，媽媽防寒、防雨衣物首選！</p>
-                    <button class="btn btn-transit" onclick="openDetail('transit_workman')">🚌 交通搭乘：公車與門市選擇指引</button>
-                </div>
-            </div>
-
-            <div id="sub-snacks" style="display:none;">
-                <div class="card">
-                    <p>• <b>世界第一蘋果派：</b>外皮酥脆內餡酸甜，烤過更驚艷！</p>
-                    <p>• <b>日本 7-11 零食：</b>砂糖奶油千層酥、限定宇治抹茶脆片。</p>
-                    <p>• <b>Lawson 超商炸物：</b>自製炸雞君（紅辣與起司口味）必須買！</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 記帳 -->
-        <div id="page-budget" class="page-section">
-            <div class="card" style="background-color: var(--yamabuki-yellow); color: #3E3A39;">
-                <h3>💰 旅費即時統計</h3>
-                <p><b>已付台幣項目：</b> NT$ <span id="total-twd">0</span></p>
-                <p><b>現場日圓總計：</b> ¥ <span id="total-jpy">0</span></p>
-            </div>
-            <div class="card">
-                <h3>➕ 新增消費紀錄</h3>
-                <form id="expense-form" onsubmit="addExpense(event)">
-                    <div class="form-group">
-                        <label>消費項目名稱</label>
-                        <input type="text" id="exp-name" class="form-control" placeholder="例如：古島站吃燒肉" required>
-                    </div>
-                    <div class="form-group" style="display: flex; gap: 10px;">
-                        <div style="flex: 2;">
-                            <label>金額</label>
-                            <input type="number" id="exp-amount" class="form-control" placeholder="金額" required>
-                        </div>
-                        <div style="flex: 1;">
-                            <label>幣別</label>
-                            <select id="exp-currency" class="form-control">
-                                <option value="JPY">日圓 (JPY)</option>
-                                <option value="TWD">台幣 (TWD)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>備註</label>
-                        <input type="text" id="exp-note" class="form-control" placeholder="備註說明">
-                    </div>
-                    <button type="submit" class="btn" style="background-color: var(--coral-pink); width: 100%; margin-top: 5px;">加入記帳本</button>
-                </form>
-            </div>
-            <div class="card">
-                <h3>📋 明細流水帳</h3>
-                <div id="expense-list" style="margin-top: 10px;"></div>
-                <button class="btn" onclick="exportData()" style="font-size: 11px; margin-top: 15px;">📥 匯出資料備份 (JSON)</button>
-            </div>
-        </div>
-
-        <!-- 住宿 -->
-        <div id="page-hotel" class="page-section">
-            <div class="card">
-                <h1>🏨 大和ROYNET酒店 沖繩縣廳前</h1>
-                <p style="font-size: 12px; color: var(--text-muted);">Daiwa Roynet Hotel OKINAWA-KENCHOMAE</p>
-                <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--border-color);">
-                <p>📍 <b>地址：</b>沖繩縣那霸市泉崎 1-11-2</p>
-                <p>📞 <b>電話：</b>098-860-1855</p>
-                <p>🚇 <b>單軌：</b>旭橋站步行約 3 分鐘 (樓下直通 Lawson 超商)</p>
-                <p>🕒 <b>入住時間：</b>14:00 | 🕚 <b>退房時間：</b>11:00</p>
-                <p style="color: var(--coral-pink); font-weight: bold;">💰 現場預計支付房費：日幣 61,517 円</p>
-                <a href="https://maps.google.com/?q=Daiwa+Roynet+Hotel+OKINAWA-KENCHOMAE" class="btn" target="_blank">🗺️ Google Maps 導航 🔗</a>
-            </div>
-        </div>
-
-        <!-- 清單 -->
-        <div id="page-todo" class="page-section">
-            <div class="card">
-                <h2>📑 互動打包與行李清單</h2>
-                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-                    <input type="text" id="new-todo" class="form-control" placeholder="新增自訂清單項目...">
-                    <button class="btn" onclick="addTodoItem()" style="margin: 0;">新增</button>
-                </div>
-                <div id="todo-list"></div>
-            </div>
-        </div>
+        <button onclick="addItem()">記一筆</button>
     </div>
 
-    <!-- 詳情彈出視窗 -->
-    <div id="detail-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">✕</span>
-            <h2 id="modal-title" style="margin-bottom: 15px;"></h2>
-            <div id="modal-body" style="font-size: 14px; line-height: 1.6; max-height: 55vh; overflow-y: auto;"></div>
-        </div>
+    <!-- 顯示清單區塊 -->
+    <div class="card">
+        <h3>📋 消費明細清單</h3>
+        <div class="total" id="totalDisplay">總花費：$0</div>
+        <ul id="listContainer"></ul>
     </div>
 
     <script>
-        const defaultExpenses = [
-            { id: 1, name: "去回程星宇機票", amount: 25222, currency: "TWD", note: "母女總計(已付)" },
-            { id: 2, name: "大和ROYNET酒店房費", amount: 61517, currency: "JPY", note: "現場需支付" }
-        ];
+        // 宣告一個陣列用來存放所有資料
+        let records = [];
 
-        const defaultTodos = [
-            { text: "確認 iPhone 錢包已儲值好 Suica/ICOCA", checked: false },
-            { text: "星宇航空完成預先選位", checked: false },
-            { text: "準備至少 5 張千円日圓紙鈔（美國村公車用）", checked: false },
-            { text: "下載日本電器 10%+7% 免稅折價券", checked: false },
-            { text: "確認 Okinawa FunPASS App 設定完成", checked: false },
-            { text: "落地那霸機場後登錄 VJW 並加保醫療險", checked: false }
-        ];
-
-        const detailDatabase = {
-            transit_lucky: {
-                title: "🏮 居酒屋 LUCKY MAXIMUM 交通指南",
-                body: "<b>【交通方式】</b><br>• 從單軌「美榮橋站」步行約 3 分鐘即可抵達。<br>• 若從大和ROYNET酒店出發，步行約 12 分鐘或搭單軌 1 站至美榮橋站。<br><b>【餐廳特色】</b><br>氣氛熱鬧、深受社群推崇的在地隱藏版名店，適合感受濃厚沖繩在地居酒屋風情。"
-            },
-            transit_eibun: {
-                title: "🍜 沖繩麵 EIBUN Palette 新分店 交通指南",
-                body: "<b>【交通方式】</b><br>• 位於國際通起點的 **RYUBO 琉房百貨 1 樓**。<br>• 從飯店步行至縣廳前站 / 琉房百貨僅需 3 分鐘，交通極其便利。<br><b>【餐廳特色】</b><br>環境乾淨舒適，全電子支付無現金點餐，帶小孩用餐毫無壓力！"
-            },
-            transit_kumozaki: {
-                title: "🥟 くもざき (Kumozaki) 交通指南",
-                body: "<b>【交通方式】</b><br>• 距離大和ROYNET酒店僅 150 公尺，走路只要 2 分鐘！就在飯店後方巷弄。<br><b>【餐廳特色】</b><br>地理位置完美，逛累了隨時可以走回飯店，是完美避開人潮的深夜食堂。"
-            },
-            transit_day1_1: {
-                title: "🚝 交通：那霸機場 ➔ 旭橋 / 縣廳前站",
-                body: "<b>【單軌電車 (Yui Rail)搭乘指引】</b><br>• 落地入境後，跟著指標走連通道前往<b>單軌電車那霸機場站 (2樓)</b>。<br>• <b>支付方式：</b>可以直接感應 iPhone 錢包內的 Suica / ICOCA 進站。<br>• <b>車程：</b>搭乘往「首里 / 浦添前田」方向，約 10-12 分鐘即可抵達「旭橋站」或「縣廳前站」（飯店步行 3 分鐘）。"
-            },
-            transit_day1_2: {
-                title: "🚝 交通：縣廳前 ➔ 新都心 (YAMADA 山田電機)",
-                body: "<b>【單軌電車轉乘指引】</b><br>• 於「縣廳前站」搭乘單軌電車至<b>「歌町站 (Omoromachi)」</b>。<br>• 出站後沿著 2 樓天橋連通步道步行約 5 分鐘即可直達山田電機那霸本店。"
-            },
-            transit_day1_3: {
-                title: "🚝 交通：古島站 ➔ 旭橋站 (晚餐後回飯店)",
-                body: "<b>【燒肉五苑回程指引】</b><br>• 燒肉五苑古島店就在<b>單軌「古島站」</b>旁邊。<br>• 吃飽後直接上古島站，搭乘往「那霸機場」方向的電車，於「旭橋站」或「縣廳前站」下車，步行回飯店休息。"
-            },
-            transit_day2_1: {
-                title: "🚌 交通：那霸市區 ➔ PARCO CITY 直達公車",
-                body: "<b>【公車搭乘完全攻略】</b><br>• <b>候車地點：</b>從飯店步行 4 分鐘至「縣廳北口」站牌（位於 RYUBO 琉貿百貨正門口前方）。<br>• <b>搭乘路線：</b>搭乘 <b>309、334、385 或 32 號公車</b>。<br>• <b>下車點：</b>公車會直接開進商城，在「ＳＡＮ－Ａ ＰＡＲＣＯ城」內部站牌下車。<br>• <b>付款方式：</b>上車抽整理券，下車投日圓零錢或感應 OKICA。"
-            },
-            transit_day3_1: {
-                title: "🚌 交通：那霸巴士總站 ➔ 美麗海水族館 (特急接駁)",
-                body: "<b>【OAS / 沖繩特急巴士】</b><br>• <b>候車地點：</b>飯店正對面的「那霸巴士總站 (Naha Bus Terminal)」。<br>• <b>注意事項：</b>已預約班次請提前 10 分鐘抵達月台候車。<br>• <b>下車地點：</b>直達水族館所在的「紀念公園前」站，下車後跟著海豚標示走即達入口。"
-            },
-            transit_day4_1: {
-                title: "🚝 交通：旭橋 ➔ 壺川站 / 奧武山公園",
-                body: "<b>【單軌電車搭乘】</b><br>• 從飯店「旭橋站」搭乘單軌電車 1 站（約 2 分鐘）至<b>「壺川站」</b>下車，出站即達那霸中央郵局。<br>• 寄完明信片後，步行約 6 分鐘穿過公園即可抵達沖宮。"
-            },
-            transit_day4_2: {
-                title: "🚌 交通：那霸 ➔ 美國村 120 號公車指引",
-                body: "<b>【120 號名護西空港線】</b><br>• <b>候車地點：</b>旭橋巴士總站 3 號月台。<br>• <b>車程時間：</b>約 60 - 70 分鐘。<br>• <b>下車站名：</b>「美濱美國村入口 (Mihama American Village Itiguchi)」站。<br>• <b>⚠️ 備鈔提醒：</b>公車無法刷 Suica，上車請抽整理券，下車依運賃表投現金，請準備多張 1000 日圓紙鈔於車上換零錢。"
-            },
-            transit_day4_3: {
-                title: "🚌 交通：美國村 ➔ 唐吉訶德壺川店",
-                body: "<b>【掃貨回程動線】</b><br>• 在下車的對面站牌搭乘 120 號公車返回那霸市區，直接在「壺川」站下車。<br>• 下車後對面即為唐吉訶德壺川店！大掃貨後搭乘單軌電車 1 站回旭橋/縣廳前飯店，非常輕鬆。"
-            },
-            transit_day5_1: {
-                title: "🚌 交通：縣廳前 ➔ DMM 水族館 (TK02 快車)",
-                body: "<b>【東京巴士 TK02 陽光海岸快線】</b><br>• <b>候車地點：</b>「縣廳北口」站牌。<br>• <b>付款方式：</b>可用台灣 Visa / Mastercard 信用卡感應刷卡上車！<br>• <b>下車站點：</b>「iias 沖繩豐崎 (DMM 水族館)」站下車，車程僅需 20-25 分鐘。"
-            },
-            transit_day5_2: {
-                title: "🚕 交通：Outlet 血拼與回飯店叫車指引",
-                body: "<b>【短程叫車秘技】</b><br>• DMM 水族館 (iias) 距離 ASHIBINAA Outlet 僅需步行約 8 分鐘或搭接駁車。<br>• 逛完 Outlet 攜帶大包小包時，建議直接下載使用 <b>GO 或 Uber App</b> 叫計程車一車載回飯店（車資約 2,000-2,500 日圓，非常划算好用）。"
-            },
-            transit_day6_1: {
-                title: "🚝 交通：單軌電車 24 小時一日券靈活運用",
-                body: "<b>【票券秘技】</b><br>• 一日券不是按天計算，而是從「購票感應進站起算 24 小時」！<br>• 票價成人 800 日圓、兒童 400 日圓，當天搭乘 3 次以上即划算打包出發。"
-            },
-            transit_day6_2: {
-                title: "🚕 交通：波上宮與市區景點時計程車接駁",
-                body: "<b>【市區短程搭車攻略】</b><br>• 首里站 ➔ 達摩寺（車程約 3 分鐘，車資約 600 日圓）。<br>• 淳久堂 ➔ 波上宮（計程車約 5-7 分鐘，車資約 800 日圓）。不自駕帶小孩這樣搭省時又不累！"
-            },
-            transit_manga: {
-                title: "🚝 交通：漫畫倉庫 那霸店 (赤嶺站)",
-                body: "<b>【單軌電車指南】</b><br>• <b>推薦安排：</b> Day 6 下午去那霸機場前順路前往！<br>• <b>路線：</b>搭乘單軌電車至<b>「赤嶺站」</b>（距離飯店僅 2 站；距離機場僅 1 站）。<br>• <b>步行：</b>出站後步行約 4 分鐘即達！逛完可以直接帶戰利品坐單軌 1 站衝機場。"
-            },
-            transit_mainplace: {
-                title: "🚝 交通：新都心 那霸 Main Place",
-                body: "<b>【順路動線與單軌指南】</b><br>• <b>推薦安排：</b> Day 1 傍晚與山田電機 (YAMADA) 一起逛！兩家百貨距離步行僅約 3 分鐘。<br>• <b>路線：</b>搭乘單軌電車至<b>「歌町站 (Omoromachi)」</b>，從 2 樓天橋連通道步行約 5 分鐘即達。"
-            },
-            transit_workman: {
-                title: "🚌 交通：Workman 職人機能服門市選擇",
-                body: "<b>【不自駕公車與門市選擇】</b><br>• <b>推薦安排：</b> Day 2 (PARCO CITY 順路) 或 Day 5。<br>• <b>門市推薦：</b>推薦順路造訪「Workman Plus 浦添店」或「小祿店」。<br>• <b>交通方式：</b>前往浦添店可在 PARCO CITY 搭乘公車轉乘 5-10 分鐘，或直接以 GO App 叫計程車短程接駁最輕鬆！"
-            },
-            yamada: {
-                title: "⚡ 山田電機免稅與折價券攻略",
-                body: "<b>【如何獲取最高 10%免稅 + 7%折扣】</b><br>1. 於 Google 搜尋「山田電機 優惠券 2026」存下電子優惠券條碼圖檔。<br>2. 消費未稅金額必須滿 5,000 日圓以上，結帳時媽媽需出示護照正本。<br>3. 2樓設有特大麵包超人玩具專區，結帳前出示優惠券通常也能享有額外折扣！<br>⚠️ 免稅櫃檯通常會提早於打烊前 30 分鐘關閉，強烈建議行程安排「先逛電器行、後吃燒肉」，最穩當！"
-            },
-            parco: {
-                title: "🛍️ PARCO CITY 攻略",
-                body: "<b>【交通完全指引】</b><br>• 上車點：飯店走路4分鐘前往「縣廳北口」站（琉貿百貨旁）。<br>• 搭乘 309、334、385 號公車，會直接開進購物中心內部的「ＳＡＮ－Ａ ＰＡＲＣＯ城」站牌下車，最省體力！<br><br><b>【女兒瘋狂亮點】</b><br>• 3樓玩具反斗城：全沖繩最齊全的麵包超人玩具基地。<br>• 3樓 Sanrio Gift Gate：大耳狗喜拿大本營！滿5,000日圓出示護照直接免稅，現場還有一番賞抽抽樂！"
-            },
-            churaumi: {
-                title: "🐬 美麗海水族館動線與免費海豚秀對接",
-                body: "<b>【全天完美銜接時間表】</b><br>• OAS 特急直達巴士在「紀念公園前」下車，掃碼 FunPASS 進場。<br>• 下午 13:00 準時移動到戶外海邊的「海豚劇場」（免費參觀，表演15分鐘）。<br>• 看完剛好去隔壁看海龜和海牛，14:30 帶女兒去美麗的翡翠海灘踩沙踏浪。<br>⚠️ 回程注意末班車時間，下車時強烈建議先用手機拍下對面回程公車站牌的時間表！"
-            },
-            post_shrine: {
-                title: "📮 中央郵局明信片與沖宮參拜趣味",
-                body: "<b>【東町中央郵局寄情】</b><br>• 營業時間為平日 09:00 - 19:00。有販售苦瓜、風獅爺造型的沖繩限定明信片。<br>• ⚠️ 特殊形狀明信片不能直接投寄，必須另外向櫃檯買信封袋裝起來才能寄回台灣。<br><br><b>【奧武山公園 沖宮祈福】</b><br>• 這裡有非常特別的十二生肖小達摩不倒翁籤詩！可以讓 10 歲的女兒自己挑一個生肖不倒翁，裡面會有一張日文籤詩，帶回台灣擺在書桌上超級療癒！"
-            },
-            american_village: {
-                title: "🍔 美國村雙強海景餐廳與冰淇淋特選",
-                body: "<b>1. 【Taco Rice Cafe Kijimuna】歐姆蛋塔可飯始祖</b><br>• 裙擺滑嫩歐姆蛋鋪在墨西哥肉醬飯上。幫女兒點不辣的項目非常開胃！<br><br><b>2. 【atabii's】臨海美式巨無霸漢堡</b><br>• 位於海岸第一排，17:00 坐在這看夕陽，落日餘暉直接灑在餐桌上。此時剛好拿出 Okinawa FunPASS 兌換免費的 Blue Seal 單球冰淇淋，帶女兒一邊吃一邊看落日點燈！"
-            },
-            dmm: {
-                title: "🐠 DMM Kariyushi 水族館完美省錢與互動攻略",
-                body: "1. 水族館入口位於 2 樓！帶小孩來可以搭旁邊 iias 商場的電梯到 2 樓（在一樓會繞圈圈）。<br>2. <b>購票省錢秘技：</b>現場櫃檯購買成人票要 3,200 日圓。建議當天現場用 Klook 買票再到櫃檯換票，一個人現省快 100 元台幣！<br>3. <b>女兒最愛：</b>一進場請直奔二樓互動區，幫女兒購買限量的企鵝、小爪水獺或樹懶餵食體驗（約 500 円/次），能近距離觸摸餵食！"
-            },
-            aniya: {
-                title: "🦪 牡蠣と島の飯酒場 あに家 必點饕客清單",
-                body: "• <b>生生蠔4種評比拼盤 (約1,600日圓)：</b>每天全國直送，擠上一點新鮮檸檬汁就極度鮮甜。<br>• <b>火山蒸汽蒸生蠔 (4顆約1,800日圓)：</b>帶 shell 的整顆生蠔現場用高壓蒸汽蒸熟，不敢吃生食的小孩也能安心享用！<br>• <b>炙燒沖繩軟骨豬排佐芥末：</b>燉到骨頭都化掉的軟骨肉，香氣撲鼻，給女兒吃時可以把旁邊的芥末撥開。"
-            },
-            airport: {
-                title: "✈️ 機場神級集章換存錢筒與真皮皮件雷雕動線",
-                body: "<b>【集章與雷雕無縫完美動線】</b><br>1. 16:03 抵達機場單軌站，先上<b>國內線 3 樓服務台</b>拿紙蓋第 1 個章。<br>2. 下到 國內線 1 樓 蓋第 2、3 個章。<br>3. 走到隔壁 <b>國際線 1 樓服務台</b> 蓋第 4 個章。<br>4. 上 <b>國際線 3 樓服務台</b> 蓋第 5 個章並<b>直接向櫃檯免費換鯨鯊存錢筒！</b><br>5. 下 2 樓前往 <b>BUSINESS LEATHER FACTORY (LIB)</b> 挑選皮件進行客製化刻字雷雕（需 10-15 分鐘），等待空檔去隔壁「首里城應援廣場」免費蓋完 4 色套色明信片。17:40 輕鬆回 3 樓排隊託運行李！"
-            }
-        };
-
-        function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-            if(window.event && window.event.target) {
-                const btn = window.event.target.closest('.nav-btn');
-                if(btn) btn.classList.add('active');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function switchDay(dayNum) {
-            document.querySelectorAll('.day-content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('day-content-' + dayNum).style.display = 'block';
-            if(window.event && window.event.target) {
-                const btn = window.event.target.closest('.day-btn');
-                if(btn) btn.classList.add('active');
-            }
-        }
-
-        function switchSubSection(subId) {
-            document.getElementById('sub-food').style.display = subId === 'food' ? 'block' : 'none';
-            document.getElementById('sub-shopping').style.display = subId === 'shopping' ? 'block' : 'none';
-            document.getElementById('sub-snacks').style.display = subId === 'snacks' ? 'block' : 'none';
-            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-            if(window.event && window.event.target) {
-                const btn = window.event.target.closest('.sub-btn');
-                if(btn) btn.classList.add('active');
-            }
-        }
-
-        function openDetail(key) {
-            const data = detailDatabase[key];
-            if (data) {
-                document.getElementById('modal-title').innerHTML = data.title;
-                document.getElementById('modal-body').innerHTML = data.body;
-                document.getElementById('detail-modal').classList.add('active');
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('detail-modal').classList.remove('active');
-        }
-
-        let expenses = JSON.parse(localStorage.getItem('ok_expenses')) || defaultExpenses;
-        function updateAccountingDOM() {
-            let twd = 0, jpy = 0;
-            const container = document.getElementById('expense-list');
-            if(!container) return;
-            container.innerHTML = '';
-            expenses.forEach(item => {
-                if (item.currency === 'TWD') twd += item.amount;
-                if (item.currency === 'JPY') jpy += item.amount;
-                const div = document.createElement('div');
-                div.className = 'todo-item';
-                div.innerHTML = `<div><b>${item.name}</b> <span style="font-size:11px;color:var(--text-muted);">${item.note||''}</span></div><div style="font-weight:bold;">${item.currency==='TWD'?'NT$':'¥'}${item.amount.toLocaleString()} <span onclick="deleteExpense(${item.id})" style="color:var(--coral-pink);margin-left:10px;cursor:pointer;">✕</span></div>`;
-                container.appendChild(div);
-            });
-            document.getElementById('total-twd').innerText = twd.toLocaleString();
-            document.getElementById('total-jpy').innerText = jpy.toLocaleString();
-        }
-
-        function addExpense(e) {
-            e.preventDefault();
-            const name = document.getElementById('exp-name').value;
-            const amount = parseFloat(document.getElementById('exp-amount').value);
-            const currency = document.getElementById('exp-currency').value;
-            const note = document.getElementById('exp-note').value;
-            expenses.push({ id: Date.now(), name, amount, currency, note });
-            localStorage.setItem('ok_expenses', JSON.stringify(expenses));
-            updateAccountingDOM();
-            document.getElementById('expense-form').reset();
-        }
-
-        function deleteExpense(id) {
-            expenses = expenses.filter(i => i.id !== id);
-            localStorage.setItem('ok_expenses', JSON.stringify(expenses));
-            updateAccountingDOM();
-        }
-
-        let todos = JSON.parse(localStorage.getItem('ok_todos')) || defaultTodos;
-        function updateTodoDOM() {
-            const container = document.getElementById('todo-list');
-            if(!container) return;
-            container.innerHTML = '';
-            todos.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'todo-item';
-                div.innerHTML = `<input type="checkbox" id="todo-${index}" ${item.checked?'checked':''} onchange="toggleTodo(${index})"> <label class="todo-text ${item.checked?'checked':''}">${item.text}</label>`;
-                container.appendChild(div);
-            });
-        }
-
-        function toggleTodo(index) {
-            todos[index].checked = !todos[index].checked;
-            localStorage.setItem('ok_todos', JSON.stringify(todos));
-            updateTodoDOM();
-        }
-
-        function addTodoItem() {
-            const input = document.getElementById('new-todo');
-            const text = input.value.trim();
-            if (text) {
-                todos.push({ text, checked: false });
-                localStorage.setItem('ok_todos', JSON.stringify(todos));
-                updateTodoDOM();
-                input.value = '';
-            }
-        }
-
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('ok_theme', target);
-            document.querySelector('.theme-toggle').innerText = target === 'dark' ? '🌙' : '☀️';
-        }
-
-        function initCountdown() {
-            const target = new Date('2026/12/06 00:00:00').getTime();
-            const now = new Date().getTime();
-            const diff = target - now;
-            const el = document.getElementById('countdown');
-            if(!el) return;
-            if (diff <= 0) { el.innerText = "🎉 沖繩歡樂之旅進行中！"; }
-            else { el.innerText = `✈️ 距離出發沖繩還有 ${Math.floor(diff/(1000*60*60*24))} 天！`; }
-        }
-
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ expenses, todos }));
-            const a = document.createElement('a');
-            a.setAttribute("href", dataStr);
-            a.setAttribute("download", "okinawa_trip_backup.json");
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        }
-
+        // 1. 網頁開啟時：自動從手機抓取舊資料
         window.onload = function() {
-            const savedTheme = localStorage.getItem('ok_theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-                document.querySelector('.theme-toggle').innerText = savedTheme === 'dark' ? '🌙' : '☀️';
+            const savedRecords = localStorage.getItem('myExpenseRecords');
+            if (savedRecords) {
+                records = JSON.parse(savedRecords); // 將字串轉回陣列
+                renderList(); // 渲染到畫面上
             }
-            updateAccountingDOM();
-            updateTodoDOM();
-            initCountdown();
         };
+
+        // 2. 新增項目的功能
+        function addItem() {
+            const nameInput = document.getElementById('itemName');
+            const amountInput = document.getElementById('itemAmount');
+
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+
+            // 檢查輸入是否為空
+            if (name === "" || isNaN(amount)) {
+                alert("請填入項目名稱與正確的金額！");
+                return;
+            }
+
+            // 建立一筆新的資料物件
+            const newRecord = {
+                id: Date.now(), // 用時間當作唯一標籤，刪除時會用到
+                name: name,
+                amount: amount
+            };
+
+            records.push(newRecord); // 加進陣列
+            saveToStorage();         // 自動存檔
+            renderList();            // 更新畫面
+
+            // 清空輸入框方便下一次輸入
+            nameInput.value = "";
+            amountInput.value = "";
+        }
+
+        // 3. 刪除項目的功能
+        function deleteItem(id) {
+            records = records.filter(record => record.id !== id); // 過濾掉該ID的資料
+            saveToStorage(); // 自動存檔
+            renderList();    // 更新畫面
+        }
+
+        // 4. 自動存檔的核心語法
+        function saveToStorage() {
+            localStorage.setItem('myExpenseRecords', JSON.stringify(records)); // 將陣列轉字串存入
+        }
+
+        // 5. 將陣列資料畫在手機螢幕上，並計算總金額
+        function renderList() {
+            const listContainer = document.getElementById('listContainer');
+            const totalDisplay = document.getElementById('totalDisplay');
+            
+            listContainer.innerHTML = ""; // 先清空舊內容
+            let total = 0;
+
+            // 迴圈跑出每一筆資料
+            records.forEach(record => {
+                total += record.amount;
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span><strong>${record.name}</strong> : $${record.amount}</span>
+                    <button class="delete-btn" onclick="deleteItem(${record.id})">刪除</button>
+                `;
+                listContainer.appendChild(li);
+            });
+
+            // 更新總金額顯示
+            totalDisplay.innerText = `總花費：$${total}`;
+        }
     </script>
+
 </body>
 </html>
